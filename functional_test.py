@@ -16,7 +16,7 @@ class DjangoInstallation(TestCase):
         # he goes to check the home page
         self.browser.get('http://localhost:8000')
         # he found the title of the site says (to-do-list)
-        self.assertIn('To-Do', self.browser.title)
+        self.assertIn('To-Do lists', self.browser.title)
         self.fail('Finish The Test')
         # he is invited to add a todo item away 
         #he types reading more about TDD in django 
