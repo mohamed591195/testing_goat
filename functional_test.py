@@ -1,6 +1,8 @@
 from unittest import TestCase
 import unittest
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
 
 class DjangoInstallation(TestCase):
     def setUp(self):
@@ -15,13 +17,26 @@ class DjangoInstallation(TestCase):
         # mohamed heard about our todo site
         # he goes to check the home page
         self.browser.get('http://localhost:8000')
-        # he found the title of the site says (to-do-list)
+        # he found the title of the site says (to-do-list) and in the header
         self.assertIn('To-Do lists', self.browser.title)
-        self.fail('Finish The Test')
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('To-Do lists', header_text)
+
         # he is invited to add a todo item away 
-        #he types reading more about TDD in django 
+        input_box = self.browser.get_by_id('id_new_item')
+        self.assertEqual(input_box.get_attribute('placeholder'), 'Enter a to-do item')
+
+        #he types 'reading more about TDD in django'
+        input_box.send_keys('reading more about TDD in django')
         # when he hits enter the page will update 
         # now the page say you have one item in the list
+        input_box.send_keys(Keys.ENTER)
+        time.sleep(1)
+        table = self.browser.fin_element_by_id('id_list_table')
+        rows = self.browser.find_elements_by_tag('tr')
+        self.assertTrue(
+            any(row.text == '1:reading more about TDD in django' for row in rows)
+        )
         # there is a still another todo input 
         # he enter applying what i have read
         # he hit enter again and the site update again
@@ -30,7 +45,7 @@ class DjangoInstallation(TestCase):
         # the site still remebering him
         # finally he is satisfied
         #he quit 
-        
+        self.fail('Finish The Test')
 
 
 if __name__ == '__main__':
