@@ -34,13 +34,18 @@ class DjangoInstallation(TestCase):
         time.sleep(1)
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text == '1:reading more about TDD in django' for row in rows),
-            'New To-Do item did not appear'
-        )
+        self.assertIn('1: reading more about TDD in django', [row.text for row in rows])
         # there is a still another todo input 
         # he enter applying what i have read
+        input_box = self.browser.find_element_by_id('id_new_item')
+        input_box.send_keys('applying what i have read')
         # he hit enter again and the site update again
+        input_box.send_keys(Keys.ENTER)
+        time.sleep(1)
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = self.browser.find_elements_by_tag_name('tr')
+        self.assertIn('1: reading more about TDD in django', [row.text for row in rows])
+        self.assertIn('2: applying what i have read', [row.text for row in rows])
         # he wonder if the site will remember him and take the url
         # to reopen it 
         # the site still remebering him
