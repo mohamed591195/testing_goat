@@ -11,6 +11,10 @@ class DjangoInstallation(TestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn( row_text, [row.text for row in rows])
 
     def test_can_start_a_list_and_retrieve_it_later(self):
         
@@ -32,9 +36,7 @@ class DjangoInstallation(TestCase):
         # now the page say you have one item in the list
         input_box.send_keys(Keys.ENTER)
         time.sleep(1)
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn('1: reading more about TDD in django', [row.text for row in rows])
+        self.check_for_row_in_list_table('1: reading more about TDD in django')
         # there is a still another todo input 
         # he enter applying what i have read
         input_box = self.browser.find_element_by_id('id_new_item')
@@ -42,11 +44,9 @@ class DjangoInstallation(TestCase):
         # he hit enter again and the site update again
         input_box.send_keys(Keys.ENTER)
         time.sleep(1)
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = self.browser.find_elements_by_tag_name('tr')
-        self.assertIn('1: reading more about TDD in django', [row.text for row in rows])
-        self.assertIn('2: applying what i have read', [row.text for row in rows])
-        # he wonder if the site will remember him and take the url
+        self.check_for_row_in_list_table('1: reading more about TDD in django')
+        self.check_for_row_in_list_table('2: applying what i have read')
+        # he wonder if the site will remember him so he took the url
         # to reopen it 
         # the site still remebering him
         # finally he is satisfied
