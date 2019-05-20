@@ -1,10 +1,10 @@
-from unittest import TestCase
+from django.test import LiveServerTestCase
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 
-class DjangoInstallation(TestCase):
+class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
 
@@ -20,7 +20,7 @@ class DjangoInstallation(TestCase):
         
         # mohamed heard about our todo site
         # he goes to check the home page
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
         # he found the title of the site says (to-do-list) and in the header
         self.assertIn('To-Do lists', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
@@ -53,6 +53,3 @@ class DjangoInstallation(TestCase):
         #he quit 
         self.fail('Finish The Test')
 
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')

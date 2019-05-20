@@ -8,13 +8,13 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'lists/home.html')
     
     def test_can_save_a_post_request(self):
-        self.client.post('/', data={'text': 'reading more about TDD in django'})
+        self.client.post('/', data={'item_text': 'reading more about TDD in django'})
         self.assertEqual(Item.objects.all().count(), 1)
         new_item = Item.objects.first()
         self.assertEqual(new_item.text, 'reading more about TDD in django')
 
     def test_redirects_after_post(self):
-        response = self.client.post('/', {'text': 'new text to check redirct after post'})
+        response = self.client.post('/', {'item_text': 'new text to check redirct after post'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')
     
@@ -23,7 +23,7 @@ class HomePageTest(TestCase):
         Item.objects.create(text='second_item')
         
         response =self.client.get('/')
-        
+
         self.assertIn('first_item', response.content.decode())
         self.assertIn('second_item', response.content.decode())
 
