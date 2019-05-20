@@ -1,18 +1,31 @@
 from django.test import TestCase
 from .models import Item
 
-class SmokeTest(TestCase):
+class HomePageTest(TestCase):
 
-
-    
     def test_template_used_for_home(self):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'lists/home.html')
     
     def test_can_save_a_post_request(self):
-        response = self.client.post('/', data={'item_text': 'reading more about TDD in django'})
-        self.assertIn('reading more about TDD in django', response.content.decode())
-        self.assertTemplateUsed(response, 'lists/home.html')
+        self.client.post('/', data={'text': 'reading more about TDD in django'})
+        self.assertEqual(Item.objects.all().count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'reading more about TDD in django')
+
+    def test_redirects_after_post(self):
+        response = self.client.post('/', {'text': 'new text to check redirct after post'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+    
+    def test_display_all_list_items(self):
+        Item.objects.create(text='first_item')
+        Item.objects.create(text='second_item')
+        
+        response =self.client.get('/')
+        
+        self.assertIn('first_item', response.content.decode())
+        self.assertIn('second_item', response.content.decode())
 
 class ItemModelTest(TestCase):
     def test_saving_and_retrieving_items(self):
