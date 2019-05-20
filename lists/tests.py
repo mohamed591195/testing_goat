@@ -1,5 +1,5 @@
 from django.test import TestCase
-
+from .models import Item
 
 class SmokeTest(TestCase):
 
@@ -13,3 +13,16 @@ class SmokeTest(TestCase):
         response = self.client.post('/', data={'item_text': 'reading more about TDD in django'})
         self.assertIn('reading more about TDD in django', response.content.decode())
         self.assertTemplateUsed(response, 'lists/home.html')
+
+class ItemModelTest(TestCase):
+    def test_saving_and_retrieving_items(self):
+        first_item = Item(text='the first ever list item')
+        first_item.save()
+        second_item = Item(text='the second list item')
+        second_item.save()
+        saved_items = Item.objects.all()
+        self.assertEqual(saved_items.count(), 2)
+        first_saved_item = saved_items[0]
+        second_saved_item = saved_items[1]
+        self.assertEqual(first_saved_item.text, 'the first ever list item')
+        self.assertEqual(second_saved_item.text, 'the second list item')
