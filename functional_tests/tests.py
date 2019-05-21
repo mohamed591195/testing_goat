@@ -2,8 +2,11 @@ from django.test import LiveServerTestCase
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
 import time
 
+
+MAX_WAIT = 10
 class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -11,11 +14,19 @@ class NewVisitorTest(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn( row_text, [row.text for row in rows])
+    def check_and_wait_for_row_in_list_table(self, row_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_list_table')
+                rows = table.find_elements_by_tag_name('tr')
+                self.assertIn( row_text, [row.text for row in rows])
+                return
 
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
     def test_can_start_a_list_and_retrieve_it_later(self):
         
         # mohamed heard about our todo site
@@ -35,21 +46,54 @@ class NewVisitorTest(LiveServerTestCase):
         # when he hits enter the page will update 
         # now the page say you have one item in the list
         input_box.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_list_table('1: reading more about TDD in django')
+       
+        self.check_and_wait_for_row_in_list_table('1: reading more about TDD in django')
         # there is a still another todo input 
         # he enter applying what i have read
         input_box = self.browser.find_element_by_id('id_new_item')
         input_box.send_keys('applying what i have read')
         # he hit enter again and the site update again
         input_box.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_list_table('1: reading more about TDD in django')
-        self.check_for_row_in_list_table('2: applying what i have read')
-        # he wonder if the site will remember him so he took the url
-        # to reopen it 
-        # the site still remebering him
+       
+        self.check_and_wait_for_row_in_list_table('1: reading more about TDD in django')
+        self.check_and_wait_for_row_in_list_table('2: applying what i have read')
+        
         # finally he is satisfied
         #he quit 
-        self.fail('Finish The Test')
+        # self.fail('Finish The Test')
+        
+    def test_multi_users_can_have_unique_lists(self):
+        self.browser.get(self.live_server_url)
+        input = self.browser.find_element_by_id('id_new_item')
+        input.send_keys('reading more about TDD in django')
+        input.send_keys(Keys.ENTER)
+        self.check_and_wait_for_row_in_list_table('1: reading more about TDD in django')
 
+        # he notices that he has a unique url
+        mohamed_list_url = self.browser.current_url
+        self.assertRegex(mohamed_list_url, '/lists/.+')
+        self.browser.quit()
+        # now a new user come to the site called ahmed
+        self.browser = webdriver.Firefox()
+        
+        # now ahmed visit the home page 
+        self.browser.get(self.live_server_url)
+        # there should be no sign of previous user mohammad
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('reading more about TDD in django', page_text)
+        self.assertNotIn('applying what i have read', page_text)
+
+        # ahmed start by adding an item to his list
+        input = self.borowser.find_element_by_id('id_new_item')
+        input.send_keys('buying milk')
+        input.send_keys(Keys.ENTER)
+        self.check_and_wait_for_row_in_list_table('1: buying milk')
+
+        # ahmed get his own list url
+        ahmed_list_url = self.browser.current_url
+        self.assertRegex(ahmed_list_url, '/list/.+')
+
+        # Again there is no trace of mohammad's list
+        page_text = self.browser.find_element_by_tag_name('body')
+        self.assertNotIn('reading more about TDD in django', page_text)
+        self.assertIn('buying milk', page_text)
