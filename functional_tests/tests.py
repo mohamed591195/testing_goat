@@ -35,7 +35,7 @@ class NewVisitorTest(LiveServerTestCase):
         # he found the title of the site says (to-do-list) and in the header
         self.assertIn('To-Do lists', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('Your To-Do list', header_text)
+        self.assertIn('Start a new To-Do list', header_text)
 
         # he is invited to add a todo item away 
         input_box = self.browser.find_element_by_id('id_new_item')
@@ -81,10 +81,9 @@ class NewVisitorTest(LiveServerTestCase):
         # there should be no sign of previous user mohammad
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('reading more about TDD in django', page_text)
-        self.assertNotIn('applying what i have read', page_text)
 
         # ahmed start by adding an item to his list
-        input = self.borowser.find_element_by_id('id_new_item')
+        input = self.browser.find_element_by_id('id_new_item')
         input.send_keys('buying milk')
         input.send_keys(Keys.ENTER)
         self.check_and_wait_for_row_in_list_table('1: buying milk')

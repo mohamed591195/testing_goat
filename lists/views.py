@@ -8,6 +8,9 @@ def homepage(request):
     if request.method == 'POST':
         text = request.POST.get('item_text')
         Item.objects.create(text=text)
-        return redirect('/')
+        return redirect('/lists/the-only-list-in-the-world/')
 
-    return render(request, 'lists/home.html', {'items': Item.objects.all()})
+    return render(request, 'lists/home.html')
+
+def ViewList(request):
+    return render(request, 'lists/list.html', {'items': Item.objects.all()})
