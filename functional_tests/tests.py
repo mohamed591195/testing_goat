@@ -87,6 +87,7 @@ class NewVisitorTest(LiveServerTestCase):
         input.send_keys('buying milk')
         input.send_keys(Keys.ENTER)
         self.check_and_wait_for_row_in_list_table('1: buying milk')
+        self.check_and_wait_for_row_in_list_table('reading more about TDD in django')
 
         # ahmed get his own list url
         ahmed_list_url = self.browser.current_url
