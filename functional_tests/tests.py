@@ -87,13 +87,13 @@ class NewVisitorTest(LiveServerTestCase):
         input.send_keys('buying milk')
         input.send_keys(Keys.ENTER)
         self.check_and_wait_for_row_in_list_table('1: buying milk')
-        self.check_and_wait_for_row_in_list_table('reading more about TDD in django')
+        # self.check_and_wait_for_row_in_list_table('reading more about TDD in django')
 
         # ahmed get his own list url
         ahmed_list_url = self.browser.current_url
-        self.assertRegex(ahmed_list_url, '/list/.+')
+        self.assertRegex(ahmed_list_url, '/lists/.+')
 
         # Again there is no trace of mohammad's list
-        page_text = self.browser.find_element_by_tag_name('body')
+        page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('reading more about TDD in django', page_text)
         self.assertIn('buying milk', page_text)
