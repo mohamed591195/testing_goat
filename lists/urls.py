@@ -8,4 +8,4 @@ urlpatterns = [
     path('lists/new', views.NewList, name='new-list'),
     
     
-]
+] 
